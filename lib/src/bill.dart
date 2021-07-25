@@ -1,3 +1,5 @@
+/// Bill or Invoice object issued to a customer
+/// it is basically a customer name and amount in ETB.
 class Bill {
   String customerCode;
   String customerName;
