@@ -1,0 +1,13 @@
+name: webirr
+version: 0.1.0
+author: WeBirr Team <tech@webirr.com>
+description: >-
+  Official Dart Client Library for WeBirr APIs
+  This package can be used to integrate your apps with WeBirr payment gateway.
+  It is a wrapper for the REST Web Service API. It can be used to create, update 
+  & delete bills and also check the payment status of bills
+homepage: https://github.com/webirr/webirr-api-dart-client
+environment:
+  sdk: '>=2.12.0 <3.0.0'
+dependencies:
+  http: ^0.13.3
