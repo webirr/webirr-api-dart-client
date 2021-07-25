@@ -1,8 +1,9 @@
+/// Payment object returned from getPaymentStatus api call
 class Payment {
   /// 0 = not paid, 1 = payment in progress,  2. paid !
   late int status;
   PaymentDetail? data;
-
+  
   Payment.fromJson(Map<String, dynamic> json) {
     status = json['status'];
     data =
@@ -13,6 +14,7 @@ class Payment {
   bool get isPaid => status == 2;
 }
 
+/// Payment Detail such as Bank Id, Bank Reference Number
 class PaymentDetail {
   late int id;
   late String paymentReference;

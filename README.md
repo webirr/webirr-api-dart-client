@@ -1,20 +1,22 @@
-# webirr-api-dart-client
 Official Dart Client Library for WeBirr Payment Gateway APIs 
+
+This Client Library provides convenient access to WeBirr Payment Gateway APIs from Dart/Flutter Apps.
 
 *Requires Dart SDK >=2.12.0 <3.0.0*
 
->This Client Library provides convenient access to WeBirr Payment Gateway APIs from Dart/Flutter Apps.
-
 ## Install
-1. Add the dependecny in pubspec.yaml 
 
->dependencies:
->   webirr: ^0.1.0
+run the following command to install webirr client library
 
-2. run the dart pub get command
+With Dart
 
 ```bash
-$ dart pub get
+$ dart pub add webirr
+```
+With Flutter
+
+```bash
+$ flutter pub add webirr
 ```
 
 ## Usage
@@ -25,7 +27,7 @@ The library needs to be configured with a *merchant Id* & *API key*. You can get
 
 ## Example
 
-# Creating a new Bill / Updating an existing Bill on WeBirr Servers
+### Creating a new Bill / Updating an existing Bill on WeBirr Servers
 
 ```dart
 
@@ -85,7 +87,7 @@ The library needs to be configured with a *merchant Id* & *API key*. You can get
 
 ```
 
-# Getting Payment status of an existing Bill from WeBirr Servers
+### Getting Payment status of an existing Bill from WeBirr Servers
 
 ```dart
 
@@ -120,7 +122,7 @@ The library needs to be configured with a *merchant Id* & *API key*. You can get
 
 ```  
 
-# Deleting an existing Bill from WeBirr Servers (if it is not paid)
+### Deleting an existing Bill from WeBirr Servers (if it is not paid)
 
 ```dart
 
