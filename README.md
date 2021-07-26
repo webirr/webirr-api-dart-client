@@ -31,7 +31,9 @@ The library needs to be configured with a *merchant Id* & *API key*. You can get
 
 ```dart
 
-  import 'package:webirr/webirr.dart';
+import 'package:webirr/webirr.dart';
+  
+void main() async {
 
   const apikey = 'YOUR_API_KEY';
   const merchantId = 'YOUR_MERCHANT_ID';
@@ -85,13 +87,16 @@ The library needs to be configured with a *merchant Id* & *API key*. You can get
         'errorCode: ${res.errorCode}'); // can be used to handle specific busines error such as ERROR_INVLAID_INPUT
   }
 
+}
 ```
 
 ### Getting Payment status of an existing Bill from WeBirr Servers
 
 ```dart
 
-  import 'package:webirr/webirr.dart';
+import 'package:webirr/webirr.dart';
+
+void main() async {
 
   const apikey = 'YOUR_API_KEY';
   const merchantId = 'YOUR_MERCHANT_ID';
@@ -120,13 +125,16 @@ The library needs to be configured with a *merchant Id* & *API key*. You can get
         'errorCode: ${r.errorCode}'); // can be used to handle specific busines error such as ERROR_INVLAID_INPUT
   }
 
+}
 ```  
 
 ### Deleting an existing Bill from WeBirr Servers (if it is not paid)
 
 ```dart
 
-  import 'package:webirr/webirr.dart';
+import 'package:webirr/webirr.dart';
+
+void main() async {
 
   const apikey = 'YOUR_API_KEY';
   const merchantId = 'YOUR_MERCHANT_ID';
@@ -148,5 +156,7 @@ The library needs to be configured with a *merchant Id* & *API key*. You can get
     print(
         'errorCode: ${res.errorCode}'); // can be used to handle specific bussines error such as ERROR_INVLAID_INPUT
   }
+  
+}  
 
 ```  

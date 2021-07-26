@@ -1,5 +1,5 @@
 name: webirr
-version: 1.0.0
+version: 1.0.1
 description: >-
   Official Dart Client Library for WeBirr APIs 
 homepage: https://github.com/webirr/webirr-api-dart-client
