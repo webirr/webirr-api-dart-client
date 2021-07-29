@@ -3,7 +3,7 @@ class Payment {
   /// 0 = not paid, 1 = payment in progress,  2. paid !
   late int status;
   PaymentDetail? data;
-  
+
   Payment.fromJson(Map<String, dynamic> json) {
     status = json['status'];
     data =

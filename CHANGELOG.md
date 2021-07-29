@@ -1,6 +1,6 @@
 ## 0.1.0
 
-- test publication
+- Test publication
 
 ## 1.0.0
 
@@ -9,3 +9,7 @@
 ## 1.0.1
 
 - Examples added
+
+## 1.0.2
+
+- Unit tests added
