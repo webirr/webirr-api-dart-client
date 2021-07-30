@@ -13,3 +13,7 @@
 ## 1.0.2
 
 - Unit tests added
+
+## 1.0.3
+
+- Examples formatted
