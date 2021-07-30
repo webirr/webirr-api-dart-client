@@ -1,5 +1,6 @@
 import 'package:webirr/webirr.dart';
 
+/// Creating a new Bill / Updating an existing Bill on WeBirr Servers
 void main() async {
   const apikey = 'YOUR_API_KEY';
   const merchantId = 'YOUR_MERCHANT_ID';

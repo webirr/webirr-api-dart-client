@@ -1,5 +1,6 @@
 import 'package:webirr/webirr.dart';
 
+/// Deleting an existing Bill from WeBirr Servers (if it is not paid)
 void main() async {
   const apikey = 'YOUR_API_KEY';
 

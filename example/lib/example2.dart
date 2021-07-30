@@ -1,5 +1,6 @@
 import 'package:webirr/webirr.dart';
 
+/// Getting Payment status of an existing Bill from WeBirr Servers
 void main() async {
   const apikey = 'YOUR_API_KEY';
 

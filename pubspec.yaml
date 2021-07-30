@@ -1,8 +1,8 @@
 name: webirr
-version: 1.0.2
+version: 1.0.3
 description: >-
-  Official Dart Client Library for WeBirr Payment Gateway APIs.
-  It provides convenient access to WeBirr Payment Gateway APIs from Dart/Flutter Apps. 
+  Official Dart Client Library for WeBirr Payment Gateway APIs.     
+  This Library provides convenient access to WeBirr Payment Gateway APIs from Dart/Flutter Apps. 
 homepage: https://github.com/webirr/webirr-api-dart-client
 environment:
   sdk: '>=2.12.0 <3.0.0'
