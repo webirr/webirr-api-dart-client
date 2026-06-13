@@ -1,16 +1,22 @@
+import 'dart:io';
+
 import 'package:webirr/webirr.dart';
 
 /// Deleting an existing Bill from WeBirr Servers (if it is not paid)
 void main() async {
-  const apikey = 'YOUR_API_KEY';
+  final apiKey =
+      Platform.environment['WEBIRR_TEST_ENV_API_KEY'] ?? 'YOUR_API_KEY';
+  final merchantId =
+      Platform.environment['WEBIRR_TEST_ENV_MERCHANT_ID'] ?? 'YOUR_MERCHANT_ID';
 
-  var api = new WeBirrClient(apikey: apikey, isTestEnv: true);
+  final api =
+      WeBirrClient(merchantId: merchantId, apikey: apiKey, isTestEnv: true);
 
-  var paymentCode =
+  const paymentCode =
       'PAYMENT_CODE_YOU_SAVED_AFTER_CREATING_A_NEW_BILL'; // suchas as '141 263 782';
 
   print('Deleting Bill...');
-  var res = await api.deleteBill(paymentCode);
+  final res = await api.deleteBill(paymentCode);
 
   if (res.error == null) {
     // success
@@ -22,4 +28,6 @@ void main() async {
     print(
         'errorCode: ${res.errorCode}'); // can be used to handle specific bussines error such as ERROR_INVLAID_INPUT
   }
+
+  api.close();
 }

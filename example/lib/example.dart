@@ -1,21 +1,27 @@
+import 'dart:io';
+
 import 'package:webirr/webirr.dart';
 
 /// Creating a new Bill / Updating an existing Bill on WeBirr Servers
 void main() async {
-  const apikey = 'YOUR_API_KEY';
-  const merchantId = 'YOUR_MERCHANT_ID';
+  final apiKey =
+      Platform.environment['WEBIRR_TEST_ENV_API_KEY'] ?? 'YOUR_API_KEY';
+  final merchantId =
+      Platform.environment['WEBIRR_TEST_ENV_MERCHANT_ID'] ?? 'YOUR_MERCHANT_ID';
 
-  var api = new WeBirrClient(apikey: apikey, isTestEnv: true);
+  final api =
+      WeBirrClient(merchantId: merchantId, apikey: apiKey, isTestEnv: true);
 
-  var bill = new Bill(
+  final bill = Bill(
     amount: '270.90',
     customerCode:
         'cc01', // it can be email address or phone number if you dont have customer code
     customerName: 'Elias Haileselassie',
+    customerPhone: '0911000000',
     time: '2021-07-22 22:14', // your bill time, always in this format
     description: 'hotel booking',
     billReference: 'drt/2021/125', // your unique reference number
-    merchantID: merchantId,
+    extras: <String, dynamic>{},
   );
 
   print('Creating Bill...');
@@ -28,7 +34,6 @@ void main() async {
     paymentCode = res.res ?? ''; // returns paymentcode such as 429 723 975
     print(
         'Payment Code = $paymentCode'); // we may want to save payment code in local db.
-
   } else {
     // fail
     print('error: ${res.error}');
@@ -37,8 +42,8 @@ void main() async {
   }
 
   // update existing bill if it is not paid
-  bill.amount = "278.00";
-  bill.customerName = 'Elias dart3';
+  bill.amount = '278.00';
+  bill.customerName = 'Elias dart';
   //bill.billReference = "WE CAN NOT CHANGE THIS";
 
   print('Updating Bill...');
@@ -54,4 +59,6 @@ void main() async {
     print(
         'errorCode: ${res.errorCode}'); // can be used to handle specific busines error such as ERROR_INVLAID_INPUT
   }
+
+  api.close();
 }

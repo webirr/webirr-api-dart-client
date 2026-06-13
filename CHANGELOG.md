@@ -17,3 +17,8 @@
 ## 1.0.3
 
 - Examples formatted
+
+## 1.1.0
+
+- more api endpoints
+- json request headers and reusable http client support
