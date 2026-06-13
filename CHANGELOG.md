@@ -22,3 +22,7 @@
 
 - more api endpoints
 - json request headers and reusable http client support
+
+## 1.1.1
+
+- package metadata
