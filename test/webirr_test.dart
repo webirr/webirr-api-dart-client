@@ -153,6 +153,18 @@ void main() {
     final stat = (await statApi.getStat('2025-01-01', '2030-01-31')).res!;
     expect(stat.nBills, 2);
     expect(stat.amountBills, 548);
+
+    final banksApi = testClient(
+      <http.Request>[],
+      jsonResponse(<String, dynamic>{
+        'res': <Map<String, dynamic>>[
+          <String, dynamic>{'bankID': 'cbe_mobile', 'name': 'CBE Mobile Banking'}
+        ]
+      }),
+    );
+    final banks = (await banksApi.getSupportedBanks()).res!;
+    expect(banks.single.bankID, 'cbe_mobile');
+    expect(banks.single.name, 'CBE Mobile Banking');
   });
 
   for (final endpoint in endpointCalls) {
@@ -340,6 +352,13 @@ final endpointCalls = <EndpointCall>[
     'merchant/stat',
     <String, String>{'date_from': '2025-01-01', 'date_to': '2030-01-31'},
     (api) => api.getStat('2025-01-01', '2030-01-31'),
+  ),
+  EndpointCall(
+    'getSupportedBanks',
+    'GET',
+    'einvoice/api/banks',
+    <String, String>{},
+    (api) => api.getSupportedBanks(),
   ),
 ];
 

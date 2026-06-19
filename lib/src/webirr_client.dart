@@ -6,6 +6,7 @@ import 'api_response.dart';
 import 'bill.dart';
 import 'payment.dart';
 import 'stat.dart';
+import 'supported_bank.dart';
 
 /// A WeBirrClient instance object can be used to create, update or delete a
 /// bill at WeBirr Servers, retrieve bill/payment information, and get basic
@@ -155,6 +156,15 @@ class WeBirrClient {
         'date_to': dateTo,
       },
       parse: (value) => _mapResult(value, Stat.fromJson),
+    );
+  }
+
+  /// Get banks enabled for this merchant checkout.
+  Future<ApiResponse<List<SupportedBank>>> getSupportedBanks() {
+    return _send<List<SupportedBank>>(
+      'GET',
+      'einvoice/api/banks',
+      parse: (value) => _listResult(value, SupportedBank.fromJson),
     );
   }
 

@@ -3,3 +3,4 @@ export 'src/bill.dart';
 export 'src/payment.dart';
 export 'src/api_response.dart';
 export 'src/stat.dart';
+export 'src/supported_bank.dart';

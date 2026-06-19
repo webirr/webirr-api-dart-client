@@ -199,6 +199,39 @@ void main() async {
 }
 ```
 
+### Getting Supported Banks for Checkout
+
+```dart
+import 'dart:io';
+
+import 'package:webirr/webirr.dart';
+
+void main() async {
+  final apikey = Platform.environment['WEBIRR_TEST_ENV_API_KEY'] ?? 'YOUR_API_KEY';
+  final merchantId =
+      Platform.environment['WEBIRR_TEST_ENV_MERCHANT_ID'] ?? 'YOUR_MERCHANT_ID';
+
+  final api = WeBirrClient(merchantId: merchantId, apikey: apikey, isTestEnv: true);
+
+  print('Getting supported banks...');
+  final response = await api.getSupportedBanks();
+
+  if (response.error == null) {
+    for (final bank in response.res ?? <SupportedBank>[]) {
+      print('${bank.bankID} - ${bank.name}');
+    }
+    print('Use only these merchant-specific banks when showing checkout payment instructions.');
+  } else {
+    print('error: ${response.error}');
+    print('errorCode: ${response.errorCode}');
+  }
+
+  api.close();
+}
+```
+
+Checkout pages should render bank-specific instructions only from `getSupportedBanks()`. Do not show a broad static bank list unless those banks are returned for the configured merchant.
+
 ### Getting Payment status of an existing Bill from WeBirr Servers
 
 ```dart
@@ -489,6 +522,7 @@ The `example/lib` directory has runnable examples equivalent to the README secti
 | `example5.dart` | Merchant stats by date range. |
 | `example6.dart` | Webhook callback handler/sink. |
 | `example7.dart` | Get bill by reference, get bill by payment code, list bills. |
+| `example8.dart` | Get banks enabled for the configured merchant checkout. |
 
 Run examples from the package root:
 

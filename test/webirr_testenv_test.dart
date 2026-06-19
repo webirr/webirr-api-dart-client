@@ -36,6 +36,18 @@ void main() {
         api.close();
       });
 
+      test('getSupportedBanks returns merchant-scoped bank list', () async {
+        final response = await api.getSupportedBanks();
+
+        assertNoApiError(response, 'getSupportedBanks');
+        expect(response.res, isNotNull);
+        expect(response.res, isNotEmpty);
+        for (final bank in response.res!) {
+          expect(bank.bankID, isNotEmpty);
+          expect(bank.name, isNotEmpty);
+        }
+      });
+
       test('createBill creates bill without manual merchant id', () async {
         final response = await api.createBill(sampleBill(billReference));
         assertNoApiError(response, 'createBill');

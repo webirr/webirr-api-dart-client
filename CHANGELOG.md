@@ -26,3 +26,7 @@
 ## 1.1.1
 
 - package metadata
+
+## 1.1.2
+
+- supported banks
