@@ -30,3 +30,7 @@
 ## 1.1.2
 
 - supported banks
+
+## 2.0.0
+
+- test env gateway

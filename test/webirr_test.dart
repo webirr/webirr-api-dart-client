@@ -41,6 +41,33 @@ void main() {
         'merchant-from-client');
   });
 
+  test('test env defaults to api.webirr.dev', () async {
+    final captured = <http.Request>[];
+    final api = testClient(captured);
+
+    await api.deleteBill('123 456 789');
+
+    expect(captured.single.url.scheme, 'https');
+    expect(captured.single.url.host, 'api.webirr.dev');
+    expect(captured.single.url.hasPort, false);
+  });
+
+  test('production env uses fixed production gateway', () async {
+    final captured = <http.Request>[];
+    final api = WeBirrClient(
+      merchantId: 'merchant-from-client',
+      apikey: 'api-key',
+      isTestEnv: false,
+      httpClient: mockClient(captured),
+    );
+
+    await api.deleteBill('123 456 789');
+
+    expect(captured.single.url.scheme, 'https');
+    expect(captured.single.url.host, 'api.webirr.net');
+    expect(captured.single.url.port, 8080);
+  });
+
   for (final endpoint in endpointCalls) {
     test('${endpoint.name} includes merchant_id when configured', () async {
       final captured = <http.Request>[];
@@ -158,7 +185,10 @@ void main() {
       <http.Request>[],
       jsonResponse(<String, dynamic>{
         'res': <Map<String, dynamic>>[
-          <String, dynamic>{'bankID': 'cbe_mobile', 'name': 'CBE Mobile Banking'}
+          <String, dynamic>{
+            'bankID': 'cbe_mobile',
+            'name': 'CBE Mobile Banking'
+          }
         ]
       }),
     );

@@ -12,6 +12,11 @@ import 'supported_bank.dart';
 /// bill at WeBirr Servers, retrieve bill/payment information, and get basic
 /// merchant statistics. It is a wrapper for the REST Web Service API.
 class WeBirrClient {
+  static const String _testBaseAddress = 'https://api.webirr.dev';
+  static const String _prodBaseAddress = 'https://api.webirr.net:8080';
+  static const String _gatewayUrlOverride =
+      String.fromEnvironment('GATEWAY_URL');
+
   final String _baseAddress;
   final String _merchantId;
   final String _apiKey;
@@ -25,11 +30,22 @@ class WeBirrClient {
     http.Client? httpClient,
   })  : _merchantId = merchantId,
         _apiKey = apikey,
-        _baseAddress = isTestEnv
-            ? 'https://api.webirr.net'
-            : 'https://api.webirr.net:8080',
+        _baseAddress = _resolveBaseAddress(isTestEnv),
         _client = httpClient ?? http.Client(),
         _ownsClient = httpClient == null;
+
+  static String _resolveBaseAddress(bool isTestEnv) {
+    if (!isTestEnv) {
+      return _prodBaseAddress;
+    }
+
+    final gatewayUrl = _gatewayUrlOverride.trim();
+    if (gatewayUrl.isNotEmpty) {
+      return gatewayUrl.replaceFirst(RegExp(r'/+$'), '');
+    }
+
+    return _testBaseAddress;
+  }
 
   /// Close the default SDK-owned HTTP client.
   ///
