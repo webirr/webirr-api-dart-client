@@ -19,10 +19,10 @@ void main() {
         jsonDecode(captured.single.body)['merchantID'], 'merchant-from-client');
   });
 
-  test('legacy constructor does not overwrite existing bill merchant id',
+  test('empty merchant id does not overwrite existing bill merchant id',
       () async {
     final captured = <http.Request>[];
-    final api = legacyTestClient(captured);
+    final api = emptyMerchantTestClient(captured);
     final bill = sampleBill()..merchantID = 'merchant-on-bill';
 
     await api.createBill(bill);
@@ -91,7 +91,7 @@ void main() {
     test('${endpoint.name} omits merchant_id when client merchant id is empty',
         () async {
       final captured = <http.Request>[];
-      final api = legacyTestClient(captured);
+      final api = emptyMerchantTestClient(captured);
 
       await endpoint.call(api);
 
@@ -229,8 +229,9 @@ WeBirrClient testClient(
   );
 }
 
-WeBirrClient legacyTestClient(List<http.Request> captured) {
+WeBirrClient emptyMerchantTestClient(List<http.Request> captured) {
   return WeBirrClient(
+    merchantId: '',
     apikey: 'api-key',
     isTestEnv: true,
     httpClient: mockClient(captured),

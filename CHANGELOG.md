@@ -34,3 +34,7 @@
 ## 2.0.0
 
 - test env gateway
+
+## 2.0.1
+
+- merchant id constructor

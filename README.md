@@ -550,10 +550,4 @@ dart test test/webirr_testenv_test.dart
 
 ## Backward Compatibility
 
-The older constructor style remains available for 1.x compatibility:
-
-```dart
-final api = WeBirrClient(apikey: apikey, isTestEnv: true);
-```
-
-When merchant ID is not configured, the client does not send an empty `merchant_id` query parameter and does not overwrite `Bill.merchantID`.
+In 2.x, the client constructor requires the merchant ID argument. When merchant ID is explicitly empty, the client does not send an empty `merchant_id` query parameter and does not overwrite `Bill.merchantID`.

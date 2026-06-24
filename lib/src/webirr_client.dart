@@ -24,7 +24,7 @@ class WeBirrClient {
   final bool _ownsClient;
 
   WeBirrClient({
-    String merchantId = '',
+    required String merchantId,
     required String apikey,
     required bool isTestEnv,
     http.Client? httpClient,
