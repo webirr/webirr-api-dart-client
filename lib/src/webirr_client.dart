@@ -185,9 +185,7 @@ class WeBirrClient {
   }
 
   Bill _prepareBill(Bill bill) {
-    if (_merchantId.isNotEmpty) {
-      bill.merchantID = _merchantId;
-    }
+    bill.merchantID = _merchantId;
     return bill;
   }
 
@@ -216,10 +214,10 @@ class WeBirrClient {
   }
 
   Uri _buildUri(String path, Map<String, String>? query) {
-    final params = <String, String>{'api_key': _apiKey};
-    if (_merchantId.isNotEmpty) {
-      params['merchant_id'] = _merchantId;
-    }
+    final params = <String, String>{
+      'api_key': _apiKey,
+      'merchant_id': _merchantId,
+    };
     if (query != null) {
       params.addAll(query);
     }

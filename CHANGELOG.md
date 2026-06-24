@@ -38,3 +38,7 @@
 ## 2.0.1
 
 - merchant id constructor
+
+## 2.0.2
+
+- merchant id behavior

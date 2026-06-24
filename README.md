@@ -550,4 +550,4 @@ dart test test/webirr_testenv_test.dart
 
 ## Backward Compatibility
 
-In 2.x, the client constructor requires the merchant ID argument. When merchant ID is explicitly empty, the client does not send an empty `merchant_id` query parameter and does not overwrite `Bill.merchantID`.
+In 2.x, the client constructor requires the merchant ID argument. The client sends `merchant_id` on every request and sets `Bill.merchantID` from the client value before create/update calls.

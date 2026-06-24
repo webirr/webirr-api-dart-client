@@ -19,15 +19,14 @@ void main() {
         jsonDecode(captured.single.body)['merchantID'], 'merchant-from-client');
   });
 
-  test('empty merchant id does not overwrite existing bill merchant id',
-      () async {
+  test('empty merchant id overwrites existing bill merchant id', () async {
     final captured = <http.Request>[];
     final api = emptyMerchantTestClient(captured);
     final bill = sampleBill()..merchantID = 'merchant-on-bill';
 
     await api.createBill(bill);
 
-    expect(jsonDecode(captured.single.body)['merchantID'], 'merchant-on-bill');
+    expect(jsonDecode(captured.single.body)['merchantID'], '');
   });
 
   test('constructor can use injected http client for requests', () async {
@@ -88,15 +87,17 @@ void main() {
       });
     });
 
-    test('${endpoint.name} omits merchant_id when client merchant id is empty',
+    test(
+        '${endpoint.name} includes empty merchant_id when client merchant id is empty',
         () async {
       final captured = <http.Request>[];
       final api = emptyMerchantTestClient(captured);
 
       await endpoint.call(api);
 
-      expect(captured.single.url.queryParameters.containsKey('merchant_id'),
-          false);
+      expect(
+          captured.single.url.queryParameters.containsKey('merchant_id'), true);
+      expect(captured.single.url.queryParameters['merchant_id'], '');
     });
   }
 
