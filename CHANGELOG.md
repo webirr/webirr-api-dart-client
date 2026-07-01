@@ -42,3 +42,7 @@
 ## 2.0.2
 
 - merchant id behavior
+
+## 2.1.0
+
+- platform errors are native errors; WeBirr API errors remain ApiResponse

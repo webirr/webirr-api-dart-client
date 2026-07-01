@@ -1,4 +1,6 @@
+import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:http/http.dart' as http;
 
@@ -7,6 +9,34 @@ import 'bill.dart';
 import 'payment.dart';
 import 'stat.dart';
 import 'supported_bank.dart';
+
+class WebirrHttpException implements Exception {
+  final int statusCode;
+  final String? reasonPhrase;
+  final String body;
+
+  WebirrHttpException({
+    required this.statusCode,
+    required this.reasonPhrase,
+    required this.body,
+  });
+
+  @override
+  String toString() {
+    final reason =
+        reasonPhrase == null || reasonPhrase!.isEmpty ? '' : ' $reasonPhrase';
+    return 'WebirrHttpException: HTTP $statusCode$reason';
+  }
+}
+
+bool isTransientWebirrError(Object error) {
+  if (error is WebirrHttpException) {
+    return error.statusCode == 408 ||
+        error.statusCode == 429 ||
+        error.statusCode >= 500;
+  }
+  return error is TimeoutException || error is SocketException;
+}
 
 /// A WeBirrClient instance object can be used to create, update or delete a
 /// bill at WeBirr Servers, retrieve bill/payment information, and get basic
@@ -204,13 +234,9 @@ class WeBirrClient {
       request.body = jsonEncode(body);
     }
 
-    try {
-      final streamed = await _client.send(request);
-      final response = await http.Response.fromStream(streamed);
-      return _decodeResponse<T>(response, parse);
-    } catch (error) {
-      return ApiResponse<T>(error: error.toString());
-    }
+    final streamed = await _client.send(request);
+    final response = await http.Response.fromStream(streamed);
+    return _decodeResponse<T>(response, parse);
   }
 
   Uri _buildUri(String path, Map<String, String>? query) {
@@ -229,19 +255,38 @@ class WeBirrClient {
     http.Response response,
     T? Function(dynamic value) parse,
   ) {
-    if (response.statusCode != 200) {
-      return ApiResponse<T>(
-        error: 'http error ${response.statusCode} ${response.reasonPhrase}',
+    if (response.statusCode < 200 || response.statusCode >= 300) {
+      throw WebirrHttpException(
+        statusCode: response.statusCode,
+        reasonPhrase: response.reasonPhrase,
+        body: response.body,
       );
     }
 
-    final map = jsonDecode(response.body) as Map<String, dynamic>;
+    final decoded = jsonDecode(response.body);
+    if (decoded is! Map) {
+      throw const FormatException('Expected ApiResponse JSON object');
+    }
+
+    final map = Map<String, dynamic>.from(decoded);
+    if (!_isApiResponseBody(map)) {
+      throw const FormatException(
+        'Expected ApiResponse JSON object with error, errorCode, or res',
+      );
+    }
+
     return ApiResponse<T>(
       error: map['error']?.toString(),
       errorCode: map['errorCode']?.toString(),
       res: map['res'] != null ? parse(map['res']) : null,
     );
   }
+}
+
+bool _isApiResponseBody(Map<String, dynamic> map) {
+  return map.containsKey('error') ||
+      map.containsKey('errorCode') ||
+      map.containsKey('res');
 }
 
 String? _stringResult(dynamic value) => value?.toString();
@@ -255,7 +300,10 @@ List<T> _listResult<T>(
   dynamic value,
   T Function(Map<String, dynamic>) fromJson,
 ) {
-  if (value is! List) return <T>[];
+  if (value is! List) {
+    throw const FormatException('Expected result list');
+  }
+
   return value
       .map((item) => fromJson(Map<String, dynamic>.from(item as Map)))
       .toList();

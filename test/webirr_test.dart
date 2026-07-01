@@ -1,4 +1,6 @@
+import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
@@ -70,7 +72,7 @@ void main() {
   for (final endpoint in endpointCalls) {
     test('${endpoint.name} includes merchant_id when configured', () async {
       final captured = <http.Request>[];
-      final api = testClient(captured);
+      final api = testClient(captured, businessErrorResponse());
 
       await endpoint.call(api);
 
@@ -91,7 +93,7 @@ void main() {
         '${endpoint.name} includes empty merchant_id when client merchant id is empty',
         () async {
       final captured = <http.Request>[];
-      final api = emptyMerchantTestClient(captured);
+      final api = emptyMerchantTestClient(captured, businessErrorResponse());
 
       await endpoint.call(api);
 
@@ -216,6 +218,107 @@ void main() {
       expect(response.errorCode, 'ERROR_INVALID_API_KEY');
     });
   }
+
+  test('transport error is not converted into ApiResponse', () async {
+    final timeout = TimeoutException('request timed out');
+    final api = WeBirrClient(
+      merchantId: 'merchant-from-client',
+      apikey: 'api-key',
+      isTestEnv: true,
+      httpClient: MockClient((request) async {
+        throw timeout;
+      }),
+    );
+
+    expect(api.deleteBill('123 456 789'), throwsA(same(timeout)));
+  });
+
+  test('non-2xx response throws typed HTTP exception', () async {
+    final api = testClient(
+      <http.Request>[],
+      http.Response(
+        'gateway unavailable',
+        503,
+        reasonPhrase: 'Service Unavailable',
+      ),
+    );
+
+    await expectLater(
+      api.getSupportedBanks(),
+      throwsA(
+        isA<WebirrHttpException>()
+            .having((error) => error.statusCode, 'statusCode', 503)
+            .having((error) => error.reasonPhrase, 'reasonPhrase',
+                'Service Unavailable')
+            .having((error) => error.body, 'body', 'gateway unavailable'),
+      ),
+    );
+  });
+
+  test('isTransientWebirrError classifies retryable platform failures', () {
+    expect(
+      isTransientWebirrError(WebirrHttpException(
+        statusCode: 503,
+        reasonPhrase: 'Service Unavailable',
+        body: '',
+      )),
+      isTrue,
+    );
+    expect(
+      isTransientWebirrError(WebirrHttpException(
+        statusCode: 429,
+        reasonPhrase: 'Too Many Requests',
+        body: '',
+      )),
+      isTrue,
+    );
+    expect(
+      isTransientWebirrError(WebirrHttpException(
+        statusCode: 408,
+        reasonPhrase: 'Request Timeout',
+        body: '',
+      )),
+      isTrue,
+    );
+    expect(
+      isTransientWebirrError(WebirrHttpException(
+        statusCode: 400,
+        reasonPhrase: 'Bad Request',
+        body: '',
+      )),
+      isFalse,
+    );
+    expect(
+        isTransientWebirrError(TimeoutException('request timed out')), isTrue);
+    expect(isTransientWebirrError(const SocketException('connection refused')),
+        isTrue);
+    expect(isTransientWebirrError(FormatException('bad json')), isFalse);
+  });
+
+  for (final invalid in <InvalidResponseCase>[
+    InvalidResponseCase('empty body', http.Response('', 200)),
+    InvalidResponseCase(
+        'non-object body', http.Response('"not an object"', 200)),
+    InvalidResponseCase('empty object body', jsonResponse(<String, dynamic>{})),
+  ]) {
+    test('invalid 2xx ApiResponse body throws: ${invalid.name}', () async {
+      final api = testClient(<http.Request>[], invalid.response);
+
+      expect(
+        api.getStat('2025-01-01', '2030-01-31'),
+        throwsA(isA<FormatException>()),
+      );
+    });
+  }
+
+  test('invalid 2xx result shape throws', () async {
+    final api = testClient(
+      <http.Request>[],
+      jsonResponse(<String, dynamic>{'res': 'not a list'}),
+    );
+
+    expect(api.getSupportedBanks(), throwsA(isA<FormatException>()));
+  });
 }
 
 WeBirrClient testClient(
@@ -230,12 +333,15 @@ WeBirrClient testClient(
   );
 }
 
-WeBirrClient emptyMerchantTestClient(List<http.Request> captured) {
+WeBirrClient emptyMerchantTestClient(
+  List<http.Request> captured, [
+  http.Response? response,
+]) {
   return WeBirrClient(
     merchantId: '',
     apikey: 'api-key',
     isTestEnv: true,
-    httpClient: mockClient(captured),
+    httpClient: mockClient(captured, response),
   );
 }
 
@@ -260,6 +366,14 @@ http.Response jsonResponse(Map<String, dynamic> data) {
     200,
     headers: <String, String>{'content-type': 'application/json'},
   );
+}
+
+http.Response businessErrorResponse() {
+  return jsonResponse(<String, dynamic>{
+    'error': 'invalid api key',
+    'errorCode': 'ERROR_INVALID_API_KEY',
+    'res': null,
+  });
 }
 
 Bill sampleBill() => Bill(
@@ -408,4 +522,11 @@ class EndpointCall {
     this.expectedQuery,
     this.call,
   );
+}
+
+class InvalidResponseCase {
+  final String name;
+  final http.Response response;
+
+  InvalidResponseCase(this.name, this.response);
 }
