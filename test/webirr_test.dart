@@ -255,9 +255,9 @@ void main() {
     );
   });
 
-  test('isTransientWebirrError classifies retryable platform failures', () {
+  test('TransientErrors classifies retryable platform failures', () {
     expect(
-      isTransientWebirrError(WebirrHttpException(
+      TransientErrors.isTransient(WebirrHttpException(
         statusCode: 503,
         reasonPhrase: 'Service Unavailable',
         body: '',
@@ -265,7 +265,7 @@ void main() {
       isTrue,
     );
     expect(
-      isTransientWebirrError(WebirrHttpException(
+      TransientErrors.isTransient(WebirrHttpException(
         statusCode: 429,
         reasonPhrase: 'Too Many Requests',
         body: '',
@@ -273,7 +273,7 @@ void main() {
       isTrue,
     );
     expect(
-      isTransientWebirrError(WebirrHttpException(
+      TransientErrors.isTransient(WebirrHttpException(
         statusCode: 408,
         reasonPhrase: 'Request Timeout',
         body: '',
@@ -281,18 +281,20 @@ void main() {
       isTrue,
     );
     expect(
-      isTransientWebirrError(WebirrHttpException(
+      TransientErrors.isTransient(WebirrHttpException(
         statusCode: 400,
         reasonPhrase: 'Bad Request',
         body: '',
       )),
       isFalse,
     );
-    expect(
-        isTransientWebirrError(TimeoutException('request timed out')), isTrue);
-    expect(isTransientWebirrError(const SocketException('connection refused')),
+    expect(TransientErrors.isTransient(TimeoutException('request timed out')),
         isTrue);
-    expect(isTransientWebirrError(FormatException('bad json')), isFalse);
+    expect(
+        TransientErrors.isTransient(
+            const SocketException('connection refused')),
+        isTrue);
+    expect(TransientErrors.isTransient(FormatException('bad json')), isFalse);
   });
 
   for (final invalid in <InvalidResponseCase>[

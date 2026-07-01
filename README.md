@@ -532,32 +532,6 @@ WEBIRR_TEST_ENV_API_KEY="YOUR_API_KEY" \
 dart run example/lib/example.dart
 ```
 
-## Error handling & retries
-
-WeBirr business errors come back on HTTP 2xx responses in `ApiResponse.error` and `ApiResponse.errorCode`. Platform failures such as `SocketException`, `TimeoutException`, non-2xx HTTP responses, and empty or non-JSON 2xx bodies throw instead of returning `ApiResponse`. Non-2xx HTTP responses throw `WebirrHttpException` with `statusCode`, `reasonPhrase`, and `body`.
-
-Retry only transient platform failures with exponential backoff and jitter: connection errors, `TimeoutException`, and HTTP `5xx`, `429`, or `408`. Use `isTransientWebirrError(error)` to apply that rule. Do not retry other `4xx` responses. Create and read operations are safe to retry. `DeleteBill` is also safe to retry, but a retry after it already succeeded returns an "invalid payment code" error; treat that as already-deleted.
-
-```dart
-try {
-  final response = await api.createBill(bill);
-
-  if (response.error != null && response.error!.isNotEmpty) {
-    // WeBirr business error from a 2xx ApiResponse envelope.
-    print('WeBirr error ${response.errorCode}: ${response.error}');
-    return;
-  }
-
-  print('Payment Code = ${response.res}');
-} catch (error) {
-  if (isTransientWebirrError(error)) {
-    // Retry with backoff + jitter.
-  }
-  // Handle platform error.
-  rethrow;
-}
-```
-
 ## Tests
 
 Fast tests use a mock HTTP client:
@@ -577,3 +551,33 @@ dart test test/webirr_testenv_test.dart
 ## Backward Compatibility
 
 In 2.x, the client constructor requires the merchant ID argument. The client sends `merchant_id` on every request and sets `Bill.merchantID` from the client value before create/update calls.
+
+## Error handling & retries
+
+WeBirr business errors come back on HTTP 2xx responses in `ApiResponse.error` and `ApiResponse.errorCode`. Platform failures such as `SocketException`, `TimeoutException`, non-2xx HTTP responses, and empty or non-JSON 2xx bodies throw instead of returning `ApiResponse`. Non-2xx HTTP responses throw `WebirrHttpException` with `statusCode`, `reasonPhrase`, and `body`.
+
+Retry only transient platform failures with exponential backoff and jitter: connection errors, `TimeoutException`, and HTTP `5xx`, `429`, or `408`. Use `TransientErrors.isTransient(error)` to apply that rule. Do not retry other `4xx` responses. Create and read operations are safe to retry. `DeleteBill` is also safe to retry, but a retry after it already succeeded returns an "invalid payment code" error; treat that as already-deleted.
+
+```dart
+try {
+  final response = await api.createBill(bill);
+
+  if (response.error != null && response.error!.isNotEmpty) {
+    // WeBirr business error from a 2xx ApiResponse envelope.
+    print('WeBirr error ${response.errorCode}: ${response.error}');
+    return;
+  }
+
+  print('Payment Code = ${response.res}');
+} catch (error) {
+  if (TransientErrors.isTransient(error)) {
+    // Transient platform error: connection/timeout failure,
+    // HTTP 5xx, 429, or 408.
+    // Safe to retry with backoff + jitter.
+  } else {
+    // Non-transient platform error: HTTP 4xx other than 408/429,
+    // invalid/empty response body, JSON parsing error, or caller cancellation.
+    // Do not retry automatically.
+  }
+}
+```

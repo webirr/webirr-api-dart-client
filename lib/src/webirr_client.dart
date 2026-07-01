@@ -29,13 +29,15 @@ class WebirrHttpException implements Exception {
   }
 }
 
-bool isTransientWebirrError(Object error) {
-  if (error is WebirrHttpException) {
-    return error.statusCode == 408 ||
-        error.statusCode == 429 ||
-        error.statusCode >= 500;
+class TransientErrors {
+  static bool isTransient(Object error) {
+    if (error is WebirrHttpException) {
+      return error.statusCode == 408 ||
+          error.statusCode == 429 ||
+          error.statusCode >= 500;
+    }
+    return error is TimeoutException || error is SocketException;
   }
-  return error is TimeoutException || error is SocketException;
 }
 
 /// A WeBirrClient instance object can be used to create, update or delete a
